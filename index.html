@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="bm">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bamanankan - Keguya Dilannen-a</title>
+<style>
+body{font-family:system-ui;background:#0f172a;color:white;text-align:center;padding:30px}
+textarea{width:90%;height:120px;border-radius:12px;padding:12px;font-size:16px}
+button{background:#22c55e;color:white;border:none;padding:12px 24px;border-radius:12px;font-size:18px;margin:10px;cursor:pointer}
+h1{color:#facc15}
+</style>
+</head>
+<body>
+<h1>Bamanankan Keguya Dilannen-a</h1>
+<p>Yɛlɛma kuma Bambara ni Français cɛ</p>
+<textarea id="input" placeholder="Sɛbɛn kuma ka bɛn... / Écris ton texte..."></textarea><br>
+<button onclick="translate('bm-fr')">Bambara → Français</button>
+<button onclick="translate('fr-bm')">Français → Bambara</button>
+<h3 id="result"></h3>
+<script>
+async function translate(dir){
+  let text=document.getElementById("input").value;
+  if(!text) return;
+  document.getElementById("result").innerText="...yɛlɛmali kɛla...";
+  let prompt = dir==="bm-fr" ? "Translate Bambara to French: "+text : "Translate French to Bambara: "+text;
+  let res = await fetch("https://api-inference.huggingface.co/models/djelia/bm-mistral-7b-v1",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({inputs:prompt})
+  });
+  let data = await res.json();
+  document.getElementById("result").innerText = data[0]?.generated_text || JSON.stringify(data);
+}
+</script>
+</body>
+</html>
