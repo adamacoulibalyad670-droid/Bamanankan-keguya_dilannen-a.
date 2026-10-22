@@ -3,34 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bamanankan - Keguya Dilannen-a</title>
+<title>Bamanankan Keguya Dilannen-a</title>
 <style>
-body{font-family:system-ui;background:#0f172a;color:white;text-align:center;padding:30px}
-textarea{width:90%;height:120px;border-radius:12px;padding:12px;font-size:16px}
-button{background:#22c55e;color:white;border:none;padding:12px 24px;border-radius:12px;font-size:18px;margin:10px;cursor:pointer}
-h1{color:#facc15}
+body{background:#0b1a2e;color:#fff;font-family:Arial;text-align:center;padding:30px}
+h1{color:#f5c542}
+textarea{width:90%;height:80px;border-radius:8px;padding:10px;font-size:16px;margin:15px 0}
+button{background:#2ecc71;color:#fff;border:none;padding:10px 15px;border-radius:8px;margin:5px;font-size:15px;cursor:pointer}
+#output{margin-top:20px;background:#fff;color:#000;padding:15px;border-radius:8px;width:90%;margin-left:auto;margin-right:auto;min-height:50px;text-align:left}
 </style>
 </head>
 <body>
 <h1>Bamanankan Keguya Dilannen-a</h1>
-<p>Yɛlɛma kuma Bambara ni Français cɛ</p>
-<textarea id="input" placeholder="Sɛbɛn kuma ka bɛn... / Écris ton texte..."></textarea><br>
-<button onclick="translate('bm-fr')">Bambara → Français</button>
-<button onclick="translate('fr-bm')">Français → Bambara</button>
-<h3 id="result"></h3>
+<p>Yɔrɔma kuma Bamanankan ni Français ce.</p>
+<textarea id="inputText" placeholder="Sɛbɛn kuma ka ben... / Écris ton texte..."></textarea>
+<br>
+<button onclick="translateToFrench()">Bambara → Français</button>
+<button onclick="translateToBambara()">Français → Bambara</button>
+<div id="output"></div>
+
 <script>
-async function translate(dir){
-  let text=document.getElementById("input").value;
-  if(!text) return;
-  document.getElementById("result").innerText="...yɛlɛmali kɛla...";
-  let prompt = dir==="bm-fr" ? "Translate Bambara to French: "+text : "Translate French to Bambara: "+text;
-  let res = await fetch("https://api-inference.huggingface.co/models/djelia/bm-mistral-7b-v1",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({inputs:prompt})
-  });
-  let data = await res.json();
-  document.getElementById("result").innerText = data[0]?.generated_text || JSON.stringify(data);
+const bmToFr = {
+  "a be cogo di": "Comment vas-tu ?",
+  "i ka kene": "Tu es en bonne santé",
+  "aw ka kene": "Vous êtes en bonne santé",
+  "n bɛ ka taa": "Je suis en route",
+  "i tɔgɔ ye le": "Quel est ton nom ?",
+  "n tɔgɔ ye": "Mon nom est",
+  "e ye le": "Qui es-tu ?",
+  "an bɛ": "Nous tous",
+  "ka nyɛ": "C'est bon",
+  "n baara": "Mon travail",
+  "o ye": "C'est",
+  "bonjour": "bonjour",
+  "aw ni sogoma": "Bonjour (salut du matin)",
+  "aw ni wula": "Bonsoir",
+  "ni ce": "Merci",
+  "aw ni baraka": "Merci beaucoup"
+};
+
+const frToBm = {
+  "comment vas-tu": "a be cogo di",
+  "comment tu vas": "a be cogo di",
+  "bonjour": "aw ni sogoma",
+  "bonsoir": "aw ni wula",
+  "merci": "ni ce",
+  "merci beaucoup": "aw ni baraka",
+  "c'est bon": "ka nyɛ",
+  "quel est ton nom": "i tɔgɔ ye le",
+  "mon nom est": "n tɔgɔ ye",
+  "je suis en route": "n bɛ ka taa"
+};
+
+function normalize(t){ return t.toLowerCase().trim().replace(/[?.!]/g,''); }
+
+function translateToFrench(){
+  let t = normalize(document.getElementById('inputText').value);
+  let out = bmToFr[t];
+  if(!out){
+    // word by word
+    let words = t.split(' ');
+    let translated = words.map(w => bmToFr[w] || w);
+    out = translated.join(' ') + "  (dɔrɔn bɛ kɔrɔbɔ)"
+  }
+  document.getElementById('output').innerText = out;
+}
+
+function translateToBambara(){
+  let t = normalize(document.getElementById('inputText').value);
+  let out = frToBm[t];
+  if(!out){
+    let words = t.split(' ');
+    let translated = words.map(w => frToBm[w] || w);
+    out = translated.join(' ') + "  (an ka kuma kura don)"
+  }
+  document.getElementById('output').innerText = out;
 }
 </script>
 </body>
